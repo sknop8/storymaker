@@ -27,7 +27,8 @@ class Task extends Component {
   Task.propTypes = {
     name: PropTypes.string.isRequired,
     isPrimitive: PropTypes.bool.isRequired,
-    arguments: PropTypes.array
+    arguments: PropTypes.array,
+    isWildCard: PropTypes.bool
   }
   Task.defaultProps = {
     arguments: []

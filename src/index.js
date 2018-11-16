@@ -9,6 +9,11 @@ import DomainOne from './domain_one'
 const DEBUG_MODE = true
 
 
+// TODO: Create an Argument component (to be used mainly for state updates) that supports:
+//    - uniqueness/non-uniquenss
+//    - different data types (e.g. arrays)
+
+
 // TODO: Add character attributes that influence decisions
 //        - failure aversity (daring-ness)
 //        - sociability 

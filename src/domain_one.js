@@ -13,26 +13,38 @@ import HTN from './htn'
  */
 
 // Primitive tasks
-const walkTask = <Task name={ "walk" } isPrimitive={ true } arguments={ ["location"] } />
-const runTask =  <Task name={ "run" } isPrimitive={ true } arguments={ ["location"] } />
-const flyTask =  <Task name={ "fly" } isPrimitive={ true } arguments={ [ "location"] } />
-const gallopTask = <Task name={ "gallop" } isPrimitive={ true } arguments={ ["location"] } />
-const hikeTask = <Task name={ "hike" } isPrimitive={ true } arguments={ ["location"] } />
+const walk = <Task name={ "walk" } isPrimitive={ true } arguments={ ["location"] } />
+const run =  <Task name={ "run" } isPrimitive={ true } arguments={ ["location"] } />
+const fly =  <Task name={ "fly" } isPrimitive={ true } arguments={ [ "location"] } />
+const gallop = <Task name={ "gallop" } isPrimitive={ true } arguments={ ["location"] } />
+const hike = <Task name={ "hike" } isPrimitive={ true } arguments={ ["location"] } />
+const love = <Task name={ "love" } isPrimitive={ true } arguments={ ["person"] } />
+const transform = <Task name={ "transform" } isPrimitive={ true } arguments={ ["animal"]} />
+const talk = <Task name={ "talk" } isPrimitive={ true } arguments={ ["person"]} />
+const argue = <Task name={ "argue" } isPrimitive={ true } arguments={ ["person"]} />
 
 // Compound tasks
-const goTask = <Task name={ "go" } isPrimitive={ false } arguments={ ["location"] }  />
-const goToSummitTask = <Task name={ "goToSummit" } isPrimitive={ false } arguments={ ["location"] } />
-const climbMountainTask = <Task name={ "climbMountain" } isPrimitive={ false } arguments={ ["location"] } />
+const go = <Task name={ "go" } isPrimitive={ false } arguments={ ["location"] }  />
+const goToSummit = <Task name={ "goToSummit" } isPrimitive={ false } arguments={ ["location"] } />
+const climbMountain = <Task name={ "climbMountain" } isPrimitive={ false } arguments={ ["location"] } />
+const meetPerson = <Task name={ "meetPerson" } isPrimitive={ false } arguments={ ["person"] } />
+const snowStorm = <Task name={ "snowStorm" } isPrimitive={ false } arguments={ [] } />
+const findShelter = <Task name={ "findShelter" } isPrimitive={ false } arguments={[]} />
+const prayToGod = <Task name={ "prayToGod" } isPrimitive={ false } arguments={[]} />
 
 // Tasks to complete
 const taskList = [
-  // AddExtraProps(goTask, {location: "mountain"}),
-  goToSummitTask,
-  // goTask,
-  // goTask
-  // walkTask,
-  // walkTask,
-  // flyTask
+  goToSummit
+]
+
+
+const wildCardIndicator = <Task name={ "WILD CARD" } isWild={ true } isPrimitive={ true } />
+
+const wildCardTaskList = [
+  AddExtraProps(meetPerson, {person: "All-Seeing Tree"}),
+  AddExtraProps(meetPerson, {person: "Blind Moon"}),
+  AddExtraProps(meetPerson, {person: "Grandmother K."}),
+  snowStorm
 ]
 
 const isBird = <Axiom name="animal" operator="==" value="bird" />
@@ -42,68 +54,159 @@ const atMountain = <Axiom name="location" operator="==" value="mountain" />
 
 const operatorList = [
   <Operator
-    task={ walkTask }
+    task={ walk }
     preconditions={ [isHuman] }
     addList={ ["location"] }
-    deleteList={ ["place1" ]} 
+    deleteList={ [ ]} 
     />,
   <Operator
-    task={ runTask }
+    task={ run }
     addList={ ["location"] }
-    deleteList={ ["place1" ]} 
+    deleteList={ [ ]} 
     />,
   <Operator 
-    task={ flyTask }
+    task={ fly }
     preconditions={ [isBird] }
     addList={ ["location"] }
-    deleteList={ ["place1" ]} 
+    deleteList={ [ ]} 
     />,
   <Operator 
-    task={ gallopTask }
+    task={ gallop }
     preconditions={ [isHorse] }
     addList={ ["location"] }
-    deleteList={ ["place1" ]} 
+    deleteList={ [ ]} 
     />,
   <Operator 
-    task={ hikeTask }
+    task={ hike }
     preconditions={ [atMountain] }
     addList={ ["location"] }
-    deleteList={ ["place1" ]} 
+    deleteList={ [ ]}
+    />,
+  <Operator 
+      task={ love }
+      preconditions={ [] }
+      addList={ ["anxiety", "confidence", "person"] }
+      deleteList={ [] }
+      />,
+  <Operator 
+    task={ talk }
+    preconditions={ [] }
+    addList={ ["anxiety", "confidence", "person"] }
+    deleteList={ [] }
+    />,
+  <Operator 
+    task={ argue }
+    preconditions={ [] }
+    addList={ ["anxiety", "confidence", "person"] }
+    deleteList={ [] }
     />
+  
 ]
 
 
 const methodList = [
   <Method 
-    task={ goToSummitTask }
+    task={ goToSummit }
     subtasks={ [
-      AddExtraProps(goTask, {location: "desert"}),
-      AddExtraProps(goTask, {location: "forest"}),
-      AddExtraProps(goTask, {location: "mountain"}),
-      climbMountainTask
+      AddExtraProps(go, {location: "desert"}),
+      wildCardIndicator,
+      AddExtraProps(go, {location: "forest"}),
+      AddExtraProps(go, {location: "mountain"}),
+      climbMountain
     ] }
     preconditions={ [] } 
   />,
   <Method 
-    task={ goTask }
-    subtasks={ [walkTask] }
+    task={ go }
+    subtasks={ [walk] }
     preconditions={ [] } 
   />,
   <Method 
-    task={ goTask }
-    subtasks={ [runTask] }
+    task={ go }
+    subtasks={ [run] }
     preconditions={ [] } 
   />,
   <Method 
-    task={ climbMountainTask }
-    subtasks={ [hikeTask] }
+    task={ go }
+    subtasks={ [fly] }
+    preconditions={ [isBird] } 
+  />,
+  <Method 
+    task={ go }
+    subtasks={ [gallop] }
+    preconditions={ [isHorse] } 
+  />,
+  <Method 
+    task={ go }
+    subtasks={ [wildCardIndicator] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ climbMountain }
+    subtasks={ [hike] }
     preconditions={ [atMountain] } 
+  />,
+  <Method 
+    task={ meetPerson }
+    subtasks={ [
+      AddExtraProps(talk, {anxiety: 0.4, confidence: 0.6})
+    ] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ meetPerson }
+    subtasks={ [
+      AddExtraProps(love, {anxiety: 0.6, confidence: 0.6})
+    ] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ meetPerson }
+    subtasks={ [
+      AddExtraProps(argue, {anxiety: 0.7, confidence: 0.4})
+    ] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ snowStorm }
+    subtasks={ [ findShelter ] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ snowStorm }
+    subtasks={ [prayToGod] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ prayToGod }
+    subtasks={ [ 
+      AddExtraProps(transform, {animal: "bird"}),
+      AddExtraProps(go, {location: "forest"})
+    ] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ prayToGod }
+    subtasks={ [ 
+      AddExtraProps(transform, {animal: "horse"}),
+      AddExtraProps(go, {location: "desert"})
+    ] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ prayToGod }
+    subtasks={ [ wildCardIndicator ] }
+    preconditions={ [] } 
   />
+
 ]
 
 const storyState = [
   <Axiom name={ "animal" } operator={ "==" } value={ "human" } />,
   <Axiom name={ "location" } operator={ "==" } value={ "desert" } />,
+  <Axiom name={ "anxiety" } operator={ "==" } value={ 0.5 } />, // 0.0-1.0 scale
+  <Axiom name={ "confidence" } operator={ "==" } value={ 0.3 } />
+
 ]
 
 
@@ -113,6 +216,7 @@ const DomainOne =
         operatorList={ operatorList }
         methodList={ methodList }
         storyState={ storyState }
+        wildCardTaskList={ wildCardTaskList }
     />
 
 export default DomainOne

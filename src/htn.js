@@ -11,6 +11,7 @@ class HTN extends Component {
       this.state = {
         goal: props.domain.props.taskList.slice(0), // Copy
         tasks: props.domain.props.taskList,
+        wildCardTasks: props.domain.props.wildCardTaskList,
         operators: props.domain.props.operatorList,
         storyState: props.domain.props.storyState,
         methods: props.domain.props.methodList,
@@ -35,7 +36,9 @@ class HTN extends Component {
     findValidTasks(taskList) {
       let result = []
       for (const task of taskList) {
-        if (task.props.isPrimitive) {
+        if (task.props.isWild) {
+            result.push(task) // Wild tasks are always valid ;)
+        } else if (task.props.isPrimitive) {
           let op = this.findOperatorWithTask(task)
           if (op && op.props.preconditions.length == 0) {
             result.push(task)
@@ -76,21 +79,30 @@ class HTN extends Component {
       let task = validTasks[rand]
       
       if (!task) return
-  
-      if (task.props.isPrimitive) {
+        
+      if (task.props.isWild) {
+        // Nondeterministically pick a wild task to replace the wildCardIndicatorTask
+        const rand = Math.floor(Math.random() * this.state.wildCardTasks.length)
+        const wildTask = this.state.wildCardTasks[rand]
+        
+        const taskList = this.state.tasks
+        taskList[taskList.indexOf(task)] = wildTask
+        this.setState({ tasks: taskList })
+        
+      } else if (task.props.isPrimitive) {
         // Apply the operator to the state by applying the addList and deleteList
         let op = this.findOperatorWithTask(task)
         for (let key of op.props.addList) {
           let val = task.props[key]
           if (!val) break
           let axiom = <Axiom name={ key } operator={ "==" } value={ val }/>
-  
-          // Remove the old axiom if it exists in the current state
-          let filtered = this.state.storyState.filter( s => s.props.name != key)
-          this.setState({ storyState: filtered}, () => {
-            // Add the new axiom (setState is async so this needs to be in a callback)
-            this.setState({storyState: [...this.state.storyState, axiom]})
-          })
+            console.log(key)
+            // Remove the old axiom if it exists in the current state
+            let filtered = this.state.storyState.filter( s => s.props.name != key)
+            this.setState({ storyState: filtered}, () => {
+                // Add the new axiom (setState is async so this needs to be in a callback)
+                this.setState({storyState: [...this.state.storyState, axiom]})
+            })
         }
   
         // TODO: What to do with deleteList? Do we need this?
@@ -122,6 +134,7 @@ class HTN extends Component {
           // Pass in any arguments that apply
           for (let arg of task.props.arguments) {
             let val = task.props[arg]
+            console.log(arg)
             if (val && subt.props.arguments.indexOf(arg) > -1) {
               subt = AddExtraProps(subt, {[arg]: val})
             }
