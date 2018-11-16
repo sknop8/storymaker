@@ -3,19 +3,21 @@ import PropTypes from 'prop-types'
 
 import { AddExtraProps } from './util'
 import Axiom from './axiom'
+import Method from './method'
 
 class HTN extends Component {
     constructor(props) {
       super(props)
       this.state = {
-        goal: props.taskList.slice(0), // Copy
-        tasks: props.taskList,
-        operators: props.operatorList,
-        storyState: props.storyState,
+        goal: props.domain.props.taskList.slice(0), // Copy
+        tasks: props.domain.props.taskList,
+        operators: props.domain.props.operatorList,
+        storyState: props.domain.props.storyState,
+        methods: props.domain.props.methodList,
         plan: [],
-        debugMode: true
+        debugMode: props.debugMode
       }
-  
+
       this.SHOP2 = this.SHOP2.bind(this)
       this.processTasks = this.processTasks.bind(this)
       this.reset = this.reset.bind(this)
@@ -50,7 +52,7 @@ class HTN extends Component {
         } else { // Compound tasks
           // Find the corresponding method and check for preconditions
           let method = null
-          for (let m of this.props.methodList) {
+          for (let m of this.state.methods) {
             if (m.props.task.props.name == task.props.name) {
               method = m
             }
@@ -100,7 +102,7 @@ class HTN extends Component {
       } else {
         // Find all methods that can decompose task into subtasks
         let methods = []
-        for (let m of this.props.methodList) {
+        for (let m of this.state.methods) {
           if (m.props.task.props.name == task.props.name) {
             methods.push(m)
           }
@@ -167,15 +169,14 @@ class HTN extends Component {
           <div>
             SHOP2 HTN algorithm implementation
           </div>
-   
-  
+
           <br />
-          <button onClick={ this.SHOP2 }> go! </button>
-          <button onClick={ this.reset }>reset</button>
-  
+          
           <div>
           { this.state.debugMode && 
             <div>
+              <button onClick={ this.SHOP2 }> go! </button>
+              <button onClick={ this.reset }>reset</button>
               <h3>state (debug mode)</h3>
               tasks: { this.state.tasks } <br/>
               {/* valid tasks: { this.state.validTasks }<br/> */}
@@ -196,7 +197,7 @@ class HTN extends Component {
           })}
   
   
-          <h3>All Tasks: </h3>
+          <h3>Goal: </h3>
           { this.state.goal }
   
           <h3>All Operators: </h3>
@@ -208,8 +209,7 @@ class HTN extends Component {
   }
   
   HTN.propTypes = {
-    taskList: PropTypes.array.isRequired,
-    operatorList: PropTypes.array.isRequired
+    domain: PropTypes.element.isRequired
   }
 
   export default HTN
