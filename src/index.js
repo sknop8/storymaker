@@ -20,7 +20,7 @@ class App extends Component {
   }
 
   findOperatorWithTask(task) {
-    return this.state.operators.find( o => o.props.taskName == task.props.name)
+    return this.state.operators.find( o => o.props.task.props.name == task.props.name)
   }
 
   preconditionMet(p) {
@@ -30,21 +30,37 @@ class App extends Component {
 
   findValidTasks(taskList) {
     let result = []
-    for (const t of taskList) {
-      if (t.props.isPrimitive) {
-        let op = this.findOperatorWithTask(t)
-        if (op && op.props.preconditions.length == 0)
-          result.push(t)
-        else if (this.state.plan.length > 0) {
+    for (const task of taskList) {
+      if (task.props.isPrimitive) {
+        let op = this.findOperatorWithTask(task)
+        if (op && op.props.preconditions.length == 0) {
+          result.push(task)
+        } else {
           // Check state to see if preconditions are met
           let pass = true
           for (const p of op.props.preconditions) {
             pass &= this.preconditionMet(p)
           }
-          if (pass) result.push(t)
+          if (pass) {
+            result.push(task)
+          }
         }
-      } else {
-        // TODO: Find the corresponding method and check for preconditions
+      } else { // Compound tasks
+        // Find the corresponding method and check for preconditions
+        let method = null
+        for (let m of methodList) {
+          if (m.props.task.props.name == task.props.name) {
+            method = m
+          }
+        }
+        if(!method) break
+        let pass = true
+        for (const p of method.props.preconditions) {
+          pass &= this.preconditionMet(p)
+        }
+        if (pass) {
+          result.push(task)
+        }
       }
     }
     return result
@@ -54,20 +70,42 @@ class App extends Component {
     // Nondeterministically choose a task in validTasks
     let rand = Math.floor(Math.random() * validTasks.length)
     let task = validTasks[rand]
-
-    if(!task) return;
+    
+    if (!task) return;
     console.log("chosen task: " + task.props.name)
 
     if (task.props.isPrimitive) {
       let op = this.findOperatorWithTask(task)
       // TODO: Apply the operator to the state by applying the addList and deleteList
 
-      this.setState({plan: [...this.state.plan, op]})
-      this.setState({
+      this.setState({plan: [...this.state.plan, op]}) // Adds op to the plan
+      this.setState({ // Removes this task from tasks
         tasks: this.state.tasks.filter( (_, i) => i !== this.state.tasks.indexOf(task)) 
       })
     } else {
-      // TODO: Find the method to decompose task into subtasks
+      // Find all methods that can decompose task into subtasks
+      let methods = []
+      for (let m of this.props.methodList) {
+        if (m.props.task.props.name == task.props.name) {
+          methods.push(m)
+        }
+      }
+      if (methods.length == 0) return
+      
+      // Pick a viable method nondeterministically 
+      let i = Math.floor(Math.random() * methods.length)
+      const method = methods[i]
+      
+      // Decompose the task using the chosen method
+      for(let subt of method.props.subtasks) {
+        let op = this.findOperatorWithTask(subt)
+        this.setState({plan: [...this.state.plan, op]}) // Adds op to the plan
+        this.setState({ // Removes this task from tasks
+          tasks: this.state.tasks.filter( (_, i) => i !== this.state.tasks.indexOf(task)) 
+        })
+      }
+
+
       // TODO: Set validTasks to all tasks in the subtasks with no preconditions
 
     }
@@ -112,9 +150,9 @@ class App extends Component {
         { this.state.debugMode && 
           <div>
             <h3>state (debug mode)</h3>
-            tasks: { this.state.validTasks } <br/>
-            valid tasks: { this.state.validTasks }<br/>
-            all tasks: { this.state.allTasks }
+            {/* tasks: { this.state.validTasks } <br/> */}
+            {/* valid tasks: { this.state.validTasks }<br/> */}
+            goal: { this.state.allTasks }
           </div>
         }
         </div>
@@ -212,7 +250,7 @@ class Operator extends Component {
     return (
       <div>
         <span>Operator( </span>
-        <span>task: { this.props.taskName }, </span>
+        <span>task: { this.props.task }, </span>
         <span>preconditions: [{ this.props.preconditions }], </span>
         <span>deleteList: [{ this.props.deleteList }], </span>
         <span>addList: [{ this.props.addlist }] )</span>
@@ -222,7 +260,7 @@ class Operator extends Component {
   }
 }
 Operator.propTypes = {
-  taskName: PropTypes.string.isRequired,
+  task: PropTypes.element.isRequired,
   preconditions: PropTypes.array,
   deleteList: PropTypes.array,
   addList: PropTypes.array
@@ -279,71 +317,111 @@ class Axiom extends Component {
 
 }
 
+function AddExtraProps(Component, extraProps) {
+  return <Component.type {...Component.props} {...extraProps} />;
+}
 
 
+/**
+ * ========== DOMAIN DESCRIPTION ====================
+ */
+
+// Primitive tasks
+const walkTask = <Task name={ "walk" } isPrimitive={ true } arguments={ ["place2"] } />
+const runTask =  <Task name={ "run" } isPrimitive={ true } arguments={ ["place2"] } />
+const flyTask =  <Task name={ "fly" } isPrimitive={ true } arguments={ [ "place2"] } />
+const gallopTask = <Task name={ "gallop" } isPrimitive={ true } arguments={ ["place2"] } />
+const hikeTask = <Task name={ "hike" } isPrimitive={ true } arguments={ ["place2"] } />
+
+// Compound tasks
+const goTask = <Task name={ "go" } isPrimitive={ false } arguments={ ["place2"] } />
+const goToSummitTask = <Task name={ "goToSummit" } isPrimitive={ false } arguments={ ["place2"] } />
+const climbMountainTask = <Task name={ "climbMountain" } isPrimitive={ false } arguments={ ["place2"] } />
+
+// Tasks to complete
 const taskList = [
-  <Task name={ "go" }
-    isPrimitive={ false } 
-    arguments={ ["place1", "place2"] }
-    key="go"
-    />,
-  <Task name={ "walk" }
-    isPrimitive={ true } 
-    arguments={ ["place1", "place2"] }
-    key="walk"
-    />,
-  <Task name={ "run" }
-    isPrimitive={ true } 
-    arguments={ ["place1", "place2"] }
-    key="run"
-    />,
-  <Task name={ "fly" }
-    isPrimitive={ true } 
-    arguments={ ["place1", "place2"] }
-    key="fly"
-    />,
-  <Task name={ "gallop" }
-    isPrimitive={ true } 
-    arguments={ ["place1", "place2"] }
-    key="gallop"
-    />
+  // AddExtraProps(goTask, {arguments:[ <Axiom name="location" operator="==" value="topOfMountain" />]})
+  // goToSummitTask
+  goTask
+  // walkTask,
+  // walkTask,
+  // flyTask
 ]
 
-const isBird = <Axiom name="animal" operator="==" value="bird" key="animalbird"/>
-const isHuman = <Axiom name="animal" operator="==" value="human" key="animalhuman"/>
-const isHorse = <Axiom name="animal" operator="==" value="horse" key="animalhuman"/>
+const isBird = <Axiom name="animal" operator="==" value="bird" />
+const isHuman = <Axiom name="animal" operator="==" value="human" />
+const isHorse = <Axiom name="animal" operator="==" value="horse" />
+const atMountain = <Axiom name="location" operator="==" value="mountain" />
 
 const operatorList = [
-  <Operator taskName={ "walk" } 
+  <Operator
+    task={ walkTask }
     preconditions={ [isHuman] }
     addlist={ ["place2"] }
     deleteList={ ["place1" ]} 
-    key={ "walk" }
     />,
-  <Operator taskName={ "run" }
+  <Operator
+    task={ runTask }
     addlist={ ["place2"] }
     deleteList={ ["place1" ]} 
-    key={ "run" }
     />,
-  <Operator taskName={ "fly" } 
+  <Operator 
+    task={ flyTask }
     preconditions={ [isBird] }
     addlist={ ["place2"] }
     deleteList={ ["place1" ]} 
-    key={ "fly" }
     />,
-  <Operator taskName={ "gallop" }
+  <Operator 
+    task={ gallopTask }
     preconditions={ [isHorse] }
     addlist={ ["place2"] }
     deleteList={ ["place1" ]} 
-    key={ "gallop" }
+    />,
+  <Operator 
+    task={ hikeTask }
+    preconditions={ [atMountain] }
+    addlist={ ["place2"] }
+    deleteList={ ["place1" ]} 
     />
+]
+
+
+const methodList = [
+  <Method 
+    task={ goToSummitTask }
+    subtasks={ [
+      AddExtraProps(goTask, {arguments:[ <Axiom name="location" operator="==" value="desert" />]}),
+      AddExtraProps(goTask, {arguments:[ <Axiom name="location" operator="==" value="forest" />]}),
+      climbMountainTask
+    ] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ goTask }
+    subtasks={ [walkTask] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ goTask }
+    subtasks={ [runTask] }
+    preconditions={ [] } 
+  />,
+  <Method 
+    task={ climbMountainTask }
+    subtasks={ [hikeTask] }
+    preconditions={ [atMountain] } 
+  />
 ]
 
 const storyState = [
   <Axiom name={ "animal" } operator={ "==" } value={ "human" } />,
-  <Axiom name={ "location" } operator={ "==" } value={ "philadelphia" } />,
+  <Axiom name={ "location" } operator={ "==" } value={ "desert" } />,
 ]
 
+// TODO: Add character attributes that influence decisions
+//        - failure aversity (daring-ness)
+//        - sociability 
+
 ReactDOM.render(
-  <App taskList={ taskList } operatorList={ operatorList } storyState={ storyState } />,
+  <App taskList={ taskList } operatorList={ operatorList } methodList={ methodList } storyState={ storyState } />,
   document.getElementById('root'));
