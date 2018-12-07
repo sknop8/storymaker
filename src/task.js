@@ -3,8 +3,10 @@ import PropTypes from 'prop-types'
 
 const TaskStyle = ({ isPrimitive }) => ({
   'background-color': isPrimitive ? '#bbeeff' : '#ddddff',
-  'width': '200px',
+  width: '200px',
   margin: '10px',
+  padding: '5px'
+
   // display: 'inline-block'
 })
 

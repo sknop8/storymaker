@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 
 const style = {
   'background-color': '#ffc9c1',
-  'width': '180px',
-  'margin': '5px',
+  width: '180px',
+  margin: '10px',
   padding: '5px'
 }
 

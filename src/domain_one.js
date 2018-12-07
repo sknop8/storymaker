@@ -99,6 +99,12 @@ const operatorList = [
     preconditions={ [] }
     addList={ ["anxiety", "confidence", "person"] }
     deleteList={ [] }
+    />,
+  <Operator 
+    task={ transform }
+    preconditions={ [] }
+    addList={ [] }
+    deleteList={ [] }
     />
   
 ]

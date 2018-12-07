@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { AddExtraProps } from './util'
 import Axiom from './axiom'
 import Method from './method'
+import Operator from './operator'
 
 class HTN extends Component {
     constructor(props) {
@@ -23,10 +24,25 @@ class HTN extends Component {
       this.processTasks = this.processTasks.bind(this)
       this.reset = this.reset.bind(this)
       this.handleCheckboxChange = this.handleCheckboxChange.bind(this)
+      this.rerun = this.rerun.bind(this)
     }
   
     findOperatorWithTask(task) {
-      return this.state.operators.find( o => o.props.task.props.name == task.props.name)
+      const op = this.state.operators.find( o => o.props.task.props.name == task.props.name)
+
+      if (!op) {
+        console.log('Could not find operator for task ' + task.props.name)
+        return
+      }
+
+      return ( 
+        // Create a new operator copy with updated task info
+        <Operator 
+          task={ task }
+          preconditions={ op.props.preconditions }
+          addList={ op.props.addList }
+          deleteList={ op.props.deleteList }
+        />)
     }
   
     preconditionMet(p) {
@@ -41,7 +57,11 @@ class HTN extends Component {
             result.push(task) // Wild tasks are always valid ;)
         } else if (task.props.isPrimitive) {
           let op = this.findOperatorWithTask(task)
-          if (op && op.props.preconditions.length == 0) {
+          if (!op) {
+            console.log('Could not find operator for task ' + task.props.name)
+            break
+          }
+          if (op.props.preconditions.length == 0) {
             result.push(task)
           } else {
             // Check state to see if preconditions are met
@@ -97,13 +117,13 @@ class HTN extends Component {
           let val = task.props[key]
           if (!val) break
           let axiom = <Axiom name={ key } operator={ "==" } value={ val }/>
-            console.log(key)
-            // Remove the old axiom if it exists in the current state
-            let filtered = this.state.storyState.filter( s => s.props.name != key)
-            this.setState({ storyState: filtered}, () => {
-                // Add the new axiom (setState is async so this needs to be in a callback)
-                this.setState({storyState: [...this.state.storyState, axiom]})
-            })
+          console.log(key + '=' + val)
+          // Remove the old axiom if it exists in the current state
+          let filtered = this.state.storyState.filter( s => s.props.name != key)
+          this.setState({ storyState: filtered}, () => {
+              // Add the new axiom (setState is async so this needs to be in a callback)
+              this.setState({storyState: [...this.state.storyState, axiom]})
+          })
         }
   
         // TODO: What to do with deleteList? Do we need this?
@@ -130,12 +150,11 @@ class HTN extends Component {
         let taskList = this.state.tasks
         let pos = taskList.indexOf(task)
         for (let subt of method.props.subtasks) {
-          let op = this.findOperatorWithTask(subt)
   
           // Pass in any arguments that apply
           for (let arg of task.props.arguments) {
             let val = task.props[arg]
-            console.log(arg)
+            // console.log(arg)
             if (val && subt.props.arguments.indexOf(arg) > -1) {
               subt = AddExtraProps(subt, {[arg]: val})
             }
@@ -170,15 +189,16 @@ class HTN extends Component {
       })
     }
 
+    rerun() {
+      this.reset()
+      this.SHOP2()
+    }
+
     handleCheckboxChange(e) {
-      console.log("checkbox changed!", e)
       this.setState({debugMode: e.target.checked})
-      // this.SHOP2()
     }
   
     render() {
-      // const primitiveTask = <Task name={"primitive-task"} isPrimitive={true} />
-      // const compoundTask = <Task name={"compound-task"} isPrimitive={false} />
   
       if (!this.state.debugMode)
         this.SHOP2() // Calculates the whole plan at once
@@ -204,6 +224,11 @@ class HTN extends Component {
               goal: { this.state.goal }
             </div>
           }
+
+          { !this.state.debugMode && 
+            <button onClick={ this.rerun }>re-run</button>
+          }
+
           <br />
         
   
