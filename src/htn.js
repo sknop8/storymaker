@@ -6,6 +6,8 @@ import Axiom from './axiom'
 import Method from './method'
 import Operator from './operator'
 
+import { Container, Row, Col, Input, Button, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap'
+
 class HTN extends Component {
     constructor(props) {
       super(props)
@@ -17,7 +19,8 @@ class HTN extends Component {
         storyState: props.domain.props.storyState,
         methods: props.domain.props.methodList,
         plan: [],
-        debugMode: props.debugMode
+        debugMode: props.debugMode,
+        protagonist: "Proto Rag"
       }
 
       this.SHOP2 = this.SHOP2.bind(this)
@@ -25,6 +28,8 @@ class HTN extends Component {
       this.reset = this.reset.bind(this)
       this.handleCheckboxChange = this.handleCheckboxChange.bind(this)
       this.rerun = this.rerun.bind(this)
+      this.setProtagonist = this.setProtagonist.bind(this)
+      this.getOperatorDisplayString = this.getOperatorDisplayString.bind(this)
     }
   
     findOperatorWithTask(task) {
@@ -42,6 +47,7 @@ class HTN extends Component {
           preconditions={ op.props.preconditions }
           addList={ op.props.addList }
           deleteList={ op.props.deleteList }
+          protagonist={ this.state.protagonist }
         />)
     }
   
@@ -95,10 +101,10 @@ class HTN extends Component {
     }
   
     processTasks(validTasks) {      
-      // Nondeterministically choose a task in validTasks
-      let rand = Math.floor(Math.random() * validTasks.length)
-      let task = validTasks[rand]
-      
+      // TODO - Nondeterministically choose a task in validTasks. For now just go in order.
+      // let rand = Math.floor(Math.random() * validTasks.length)
+      let task = validTasks[0] 
+
       if (!task) return
         
       if (task.props.isWild) {
@@ -117,7 +123,7 @@ class HTN extends Component {
           let val = task.props[key]
           if (!val) break
           let axiom = <Axiom name={ key } operator={ "==" } value={ val }/>
-          console.log(key + '=' + val)
+
           // Remove the old axiom if it exists in the current state
           let filtered = this.state.storyState.filter( s => s.props.name != key)
           this.setState({ storyState: filtered}, () => {
@@ -154,7 +160,6 @@ class HTN extends Component {
           // Pass in any arguments that apply
           for (let arg of task.props.arguments) {
             let val = task.props[arg]
-            // console.log(arg)
             if (val && subt.props.arguments.indexOf(arg) > -1) {
               subt = AddExtraProps(subt, {[arg]: val})
             }
@@ -194,8 +199,25 @@ class HTN extends Component {
       this.SHOP2()
     }
 
+    setProtagonist(e) {
+      console.log(e.target.value)
+      this.setState({protagonist: e.target.value })
+    }
+
     handleCheckboxChange(e) {
       this.setState({debugMode: e.target.checked})
+    }
+
+    getOperatorDisplayString(op) {
+      let str = this.state.protagonist
+      const task = op.props.task
+      str += " " + task.props.displayText
+      if (task.props.arguments.length > 0) {
+        for (let arg of task.props.arguments) {
+          str += " " + task.props[arg]
+        }
+      }
+      return str + "."
     }
   
     render() {
@@ -205,55 +227,81 @@ class HTN extends Component {
   
   
       return (
-        <div style={ this.props.style }>
-        <center>
-          <h1><i>STORY MAKER</i></h1>
-          <h4><i>SHOP2 HTN algorithm implementation</i></h4>
+        <div className="htn" >
+        <Container>
+          <center>
+            <h1><i>STORY MAKER</i></h1>
+            <div><i><strong>SHOP2 HTN algorithm implementation</strong></i></div>
+            <br />
 
-          <input type="checkbox" onChange={ this.handleCheckboxChange } checked={this.state.debugMode} /> <span>Toggle Debug Mode</span>
-          
-          <br/><br/>
-          
-          { this.state.debugMode && 
-            <div>
-              <button onClick={ this.SHOP2 }> go! </button>
-              <button onClick={ this.reset }>reset</button>
-              <h3>state (debug mode)</h3>
-              tasks: { this.state.tasks } <br/>
-              {/* valid tasks: { this.state.validTasks }<br/> */}
-              goal: { this.state.goal }
-            </div>
-          }
+            <input type="checkbox" onChange={ this.handleCheckboxChange } checked={this.state.debugMode} /> <span>Toggle Debug Mode</span>
+            
+            <br/><br/>
 
-          { !this.state.debugMode && 
-            <button onClick={ this.rerun }>re-run</button>
-          }
-
-          <br />
-        
-  
-          <h3>The Plan: </h3>
-          { this.state.plan }
-          <br />
-  
-          <h3>Story State:</h3>
-          { this.state.storyState.map((s) => {
-            return (<div>{s}</div>)
-          })}
-  
-  
-          <h3>Goal: </h3>
-          { this.state.goal }
-          
-
-          { this.state.debugMode && 
+            { this.state.debugMode && 
               <div>
-              <h3>All Operators: </h3>
-              { this.state.operators }
+                <Button onClick={ this.SHOP2 }> go! </Button>
+                <span> </span>
+                <Button onClick={ this.reset }>reset</Button>
+                <h3>Goal</h3>{ this.state.goal }
               </div>
-          }
+            }
+            
+            { !this.state.debugMode && 
+              <Button color="primary" onClick={ this.rerun }>re-run</Button>
+            }
 
-        </center>
+            <br />
+            
+            <Row>
+              <Col sm="12" md={{ size: 4, offset: 4 }}>
+              <h3>Protagonist Details</h3>
+              <InputGroup>
+                <InputGroupAddon addonType="prepend">
+                  <InputGroupText>Name</InputGroupText>
+                </InputGroupAddon>
+                <Input placeholder="Proto Rag" onChange={this.setProtagonist}/>
+              </InputGroup>
+              </Col>
+            </Row>
+            <br/>
+            <Row>
+              { this.state.debugMode && 
+                <Col>
+                  <h3>Tasks (to process)</h3> 
+                  { this.state.tasks } <br/>
+                </Col>
+              }
+              <Col>
+                <h3>The Plan</h3>
+                { this.state.plan.map((op) => {
+                  return(
+                    <div>
+                    { op }
+                    <i>{ this.getOperatorDisplayString(op) }</i>
+                    </div>
+                  )
+                }) }
+              </Col>
+
+              <Col>
+                <h3>Story State</h3>
+                { this.state.storyState.map((s) => {
+                  return (<div>{s}</div>)
+                })}
+              </Col>
+            </Row>
+            
+
+            { this.state.debugMode && 
+                <div>
+                {/* <h3>All Operators: </h3> */}
+                {/* { this.state.operators } */}
+                </div>
+            }
+          
+          </center>
+          </Container>
         </div>
       )
     }

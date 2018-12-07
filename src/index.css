@@ -1,0 +1,18 @@
+body {
+    font-family: 'Source Sans Pro';
+    display: 'flex';
+}
+
+h1 {
+    font-weight: 900;
+}
+
+h3 {
+    font-weight: 600;
+    padding-top: 10px;
+}
+
+/* .htn {
+    background-color: red !important;
+    text-align: right !important;
+} */

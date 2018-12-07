@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 const TaskStyle = ({ isPrimitive }) => ({
   'background-color': isPrimitive ? '#bbeeff' : '#ddddff',
-  width: '200px',
+  width: '250px',
   margin: '10px',
   padding: '5px'
 
@@ -16,22 +16,19 @@ const TaskStyle = ({ isPrimitive }) => ({
  */
 class Task extends Component {
     constructor(props) {
-      super(props) 
+      super(props)
     }
   
     render() {
       let isPrimitive = this.props.isPrimitive
       return (
         <div style={ TaskStyle({ isPrimitive }) } >
-          <span style={{'color':'#878fdd'}}>Task</span><br/>
+          <div className="text-info">Task</div>
           <span><strong>{ this.props.name }</strong></span>
-          {/* <span>isPrimitive: { this.props.isPrimitive.toString() }, </span> */}
           <br/>
-          {/* <span>arguments: [{ this.props.arguments.toString() }]</span> */}
           { this.props.arguments.map((a) => {
             return (<div> {a}: {this.props[a]}</div>)
           })}
-          <br />
         </div>
       )
     }
