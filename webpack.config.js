@@ -22,6 +22,10 @@ module.exports = {
       {
         test: /\.coffee$/,
         use: [ 'coffee-loader' ]
+      },
+      {
+        test: /\.css$/,
+        use: ['css-loader'],
       }
     ]
   }

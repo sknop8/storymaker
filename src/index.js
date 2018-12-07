@@ -5,9 +5,12 @@ import PropTypes from 'prop-types'
 import HTN from './htn'
 import DomainOne from './domain_one'
 
-// Constants
+// Constants (default)
 const DEBUG_MODE = true
 
+const style = {
+  'fontFamily': 'Source Sans Pro',
+}
 
 // TODO: Create an Argument component (to be used mainly for state updates) that supports:
 //    - uniqueness/non-uniquenss
@@ -22,5 +25,5 @@ const DEBUG_MODE = true
 
 // Initialize the HTN
 ReactDOM.render(
-  <HTN domain={ DomainOne } debugMode={ DEBUG_MODE }/>,
+  <HTN style={ style } domain={ DomainOne } debugMode={ DEBUG_MODE }/>,
   document.getElementById('root'));

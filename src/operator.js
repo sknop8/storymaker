@@ -1,6 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
+const style = {
+  'background-color': '#ffeda5',
+  'width': '250px',
+  margin: '10px',
+  // display:'inline-block'
+}
+
 /**
  * Operator: How a primitive task can be performed.
  */
@@ -10,12 +17,12 @@ class Operator extends Component {
   }
   render() {
     return (
-    <div>
-      <span>Operator( </span>
-      <span>task: { this.props.task }, </span>
-      <span>preconditions: [{ this.props.preconditions }], </span>
-      <span>deleteList: [{ this.props.deleteList }], </span>
-      <span>addList: [{ this.props.addList }] )</span>
+    <div style={ style }>
+      <div style={{'color':'#d8b131'}}>Operator</div>
+      <span>{ this.props.task }</span>
+      <span>{ this.props.preconditions } </span>
+      {/* <span>deleteList: [{ this.props.deleteList }], </span> */}
+      {/* <span>addList: [{ this.props.addList }] )</span> */}
       <br />
     </div>
     )

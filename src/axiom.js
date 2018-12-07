@@ -1,17 +1,24 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
+const style = {
+  'background-color': '#ffc9c1',
+  'width': '180px',
+  'margin': '5px',
+  padding: '5px'
+}
+
 /**
  * Axiom: Used to specify preconditions to methods and operators
  */
 class Axiom extends Component {
     render() {
       return (
-        <div>
-          <span>Axiom( </span>
-          <span>name: {this.props.name}, </span>
-          <span>operator: {this.props.operator}, </span>
-          <span>value: {this.props.value} ) </span>
+        <div style={ style }>
+          <div style={{color:'#d67864'}}>Axiom</div>
+          <span>{this.props.name} </span>
+          <span>{this.props.operator} </span>
+          <span>{this.props.value} </span>
         </div>
       )
     }

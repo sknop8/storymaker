@@ -22,6 +22,7 @@ class HTN extends Component {
       this.SHOP2 = this.SHOP2.bind(this)
       this.processTasks = this.processTasks.bind(this)
       this.reset = this.reset.bind(this)
+      this.handleCheckboxChange = this.handleCheckboxChange.bind(this)
     }
   
     findOperatorWithTask(task) {
@@ -168,6 +169,12 @@ class HTN extends Component {
         plan: []
       })
     }
+
+    handleCheckboxChange(e) {
+      console.log("checkbox changed!", e)
+      this.setState({debugMode: e.target.checked})
+      // this.SHOP2()
+    }
   
     render() {
       // const primitiveTask = <Task name={"primitive-task"} isPrimitive={true} />
@@ -178,14 +185,15 @@ class HTN extends Component {
   
   
       return (
-        <div>
-          <div>
-            SHOP2 HTN algorithm implementation
-          </div>
+        <div style={ this.props.style }>
+        <center>
+          <h1><i>STORY MAKER</i></h1>
+          <h4><i>SHOP2 HTN algorithm implementation</i></h4>
 
-          <br />
+          <input type="checkbox" onChange={ this.handleCheckboxChange } checked={this.state.debugMode} /> <span>Toggle Debug Mode</span>
           
-          <div>
+          <br/><br/>
+          
           { this.state.debugMode && 
             <div>
               <button onClick={ this.SHOP2 }> go! </button>
@@ -196,7 +204,6 @@ class HTN extends Component {
               goal: { this.state.goal }
             </div>
           }
-          </div>
           <br />
         
   
@@ -212,10 +219,16 @@ class HTN extends Component {
   
           <h3>Goal: </h3>
           { this.state.goal }
-  
-          <h3>All Operators: </h3>
-          { this.state.operators }
           
+
+          { this.state.debugMode && 
+              <div>
+              <h3>All Operators: </h3>
+              { this.state.operators }
+              </div>
+          }
+
+        </center>
         </div>
       )
     }

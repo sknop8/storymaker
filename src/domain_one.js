@@ -6,7 +6,7 @@ import Operator from './operator'
 import Method from './method'
 import Axiom from './axiom'
 import Domain from './domain'
-import HTN from './htn'
+// import HTN from './htn'
 
 /**
  * ========== DOMAIN DESCRIPTION ====================
@@ -38,7 +38,7 @@ const taskList = [
 ]
 
 
-const wildCardIndicator = <Task name={ "WILD CARD" } isWild={ true } isPrimitive={ true } />
+const wildCardIndicator = <Task name={ "WILD CARD" } isWild={ true } isPrimitive={ false } />
 
 const wildCardTaskList = [
   AddExtraProps(meetPerson, {person: "All-Seeing Tree"}),

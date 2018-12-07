@@ -1,24 +1,34 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
+const TaskStyle = ({ isPrimitive }) => ({
+  'background-color': isPrimitive ? '#bbeeff' : '#ddddff',
+  'width': '200px',
+  margin: '10px',
+  // display: 'inline-block'
+})
+
+
 /**
  * Task: An activity to perform.
  */
 class Task extends Component {
     constructor(props) {
-      super(props)
+      super(props) 
     }
   
     render() {
+      let isPrimitive = this.props.isPrimitive
       return (
-        <div>
-          <span>Task(  </span>
-          <span>name: <strong>{ this.props.name }</strong>, </span>
-          <span>isPrimitive: { this.props.isPrimitive.toString() }, </span>
-          <span>arguments: [{ this.props.arguments.toString() }]</span>
+        <div style={ TaskStyle({ isPrimitive }) } >
+          <span style={{'color':'#878fdd'}}>Task</span><br/>
+          <span><strong>{ this.props.name }</strong></span>
+          {/* <span>isPrimitive: { this.props.isPrimitive.toString() }, </span> */}
+          <br/>
+          {/* <span>arguments: [{ this.props.arguments.toString() }]</span> */}
           { this.props.arguments.map((a) => {
-            return (<span> {a}: {this.props[a]}</span>)
-          })})
+            return (<div> {a}: {this.props[a]}</div>)
+          })}
           <br />
         </div>
       )
@@ -33,5 +43,8 @@ class Task extends Component {
   Task.defaultProps = {
     arguments: []
   }
+
+
+
 
   export default Task
